@@ -1,0 +1,121 @@
+.global _start
+_start:
+	
+	.equ HT, 0x7478
+	.equ LT, 0x3878
+	.equ COOL, 0x393F3F38
+	.equ KEY_BASE_ADRESS, 0xFF200050
+	.equ S_SEGMENT_BASE_ADRESS, 0xFF200020
+	
+	LDR R0, TRY
+	LDR R1, =KEY_BASE_ADRESS
+	LDR R2, =S_SEGMENT_BASE_ADRESS
+	MOV R8, #0x0000000F // Register that holds the number
+	MOV R5, #0// R5 holds the number obtanined from player
+		
+	MAIN:			
+	B CHECK_KEY0
+
+	SUB_MAIN:	
+	CMP R5, R8
+	BPL DISPLAY_COOL
+	BL DISPLAY_HT
+	B MAIN
+		
+	DISPLAY_COOL:
+	PUSH {R4,R2}
+	CMP R5, R8
+	BNE DISPLAY_LT
+	LDR R4, =COOL
+	STR R4, [R2]
+	POP {R4,R2}
+	B _start			
+	
+	DISPLAY_HT:
+	PUSH {R4,R2}
+	LDR R4, =HT
+	STR R4, [R2]
+	POP {R4,R2}
+	MOV PC, LR
+	
+	DISPLAY_LT:	
+	PUSH {R4,R2}
+	LDR R4, =LT
+	STR R4, [R2]
+	POP {R4,R2}
+	B MAIN
+			
+	CHECK_KEY0:	
+	LDR R6, [R1]
+	CMP R6, #0x1
+	BEQ ADD1
+	B CHECK_KEY1
+
+	CHECK_KEY1:
+	LDR R6, [R1]
+	CMP R6, #0x2
+	BEQ SUB1
+	B CHECK_KEY2	
+	
+	CHECK_KEY2:
+	LDR R6, [R1]
+	CMP R6, #0x4
+	BEQ ADD10
+	B CHECK_KEY3
+	
+	CHECK_KEY3:
+	LDR R6, [R1]
+	CMP R6, #0x8
+	BEQ SUB10
+	B WAIT
+	
+	WAIT:
+	LDR R6, [R1]
+	CMP R6, #0
+	BEQ WAIT
+	B CHECK_KEY0
+		
+	ADD1:
+	ADD R5, R5, #1
+	PUSH {R5}
+	POP {R5}
+	SUBS R0, R0, #1 // Decrement tries
+  BEQ LOSE
+	B CHECK_KEY_RELEASE
+	
+	SUB1:
+	SUB R5, R5, #1
+	PUSH {R5}
+	POP {R5}
+	SUBS R0, R0, #1 // Decrement tries
+  BEQ LOSE
+	B CHECK_KEY_RELEASE
+	
+	ADD10:
+	ADD R5, R5, #10
+	PUSH {R5}
+	POP {R5}
+	SUBS R0, R0, #1 // Decrement tries
+  BEQ LOSE
+	B CHECK_KEY_RELEASE
+	
+	SUB10:
+	SUB R5, R5, #10
+	PUSH {R5}
+	POP {R5}
+	SUBS R0, R0, #1 // Decrement tries
+  BEQ LOSE
+	B CHECK_KEY_RELEASE
+	
+	CHECK_KEY_RELEASE:
+	LDR R6, [R1]
+	CMP R6, #0
+	BNE CHECK_KEY_RELEASE
+	B SUB_MAIN
+	
+	LOSE:
+	B _start
+		
+	TRY: .word 15 // Number of clicks you have to guess the number	
+		
+	.end
