@@ -6,14 +6,19 @@ _start:
 	.equ COOL, 0x393F3F38
 	.equ KEY_BASE_ADRESS, 0xFF200050
 	.equ S_SEGMENT_BASE_ADRESS, 0xFF200020
+	.equ PRIVATE_TIMER, 0xFFFEC600
 	
 	LDR R0, TRY
 	LDR R1, =KEY_BASE_ADRESS
 	LDR R2, =S_SEGMENT_BASE_ADRESS
-	MOV R8, #0x0000000F // Register that holds the number
+	LDR R3, =PRIVATE_TIMER       // R9 has Private Timer
+	MOV R8, #0 // Register that holds the number
 	MOV R5, #0// R5 holds the number obtanined from player
+	LDR R9, NUMBER
+	
+	B RANDOM_NUMBER
 		
-	MAIN:			
+	MAIN:
 	B CHECK_KEY0
 
 	SUB_MAIN:	
@@ -80,7 +85,7 @@ _start:
 	PUSH {R5}
 	POP {R5}
 	SUBS R0, R0, #1 // Decrement tries
-  BEQ LOSE
+  	BEQ LOSE
 	B CHECK_KEY_RELEASE
 	
 	SUB1:
@@ -88,7 +93,7 @@ _start:
 	PUSH {R5}
 	POP {R5}
 	SUBS R0, R0, #1 // Decrement tries
-  BEQ LOSE
+  	BEQ LOSE
 	B CHECK_KEY_RELEASE
 	
 	ADD10:
@@ -96,7 +101,7 @@ _start:
 	PUSH {R5}
 	POP {R5}
 	SUBS R0, R0, #1 // Decrement tries
-  BEQ LOSE
+  	BEQ LOSE
 	B CHECK_KEY_RELEASE
 	
 	SUB10:
@@ -104,7 +109,7 @@ _start:
 	PUSH {R5}
 	POP {R5}
 	SUBS R0, R0, #1 // Decrement tries
-  BEQ LOSE
+  	BEQ LOSE
 	B CHECK_KEY_RELEASE
 	
 	CHECK_KEY_RELEASE:
@@ -114,8 +119,23 @@ _start:
 	B SUB_MAIN
 	
 	LOSE:
-	B _start
-		
+	LDR R0, TRY
+	PUSH {R0}
+	POP {R0}
+	B RANDOM_NUMBER
+	
+	RANDOM_NUMBER:
+	MOV R5, #0
+	LDR R8, [R3]
+	LSL R9, R9, #1
+	EOR R8, R8, R9
+	LSR R8, R8, #24
+	PUSH {R8,R9,R5}
+	POP {R8,R9,R5}	
+	B MAIN
+	
+	
+	NUMBER: .word 0b10110011101010111010011001010100
 	TRY: .word 15 // Number of clicks you have to guess the number	
 		
 	.end
