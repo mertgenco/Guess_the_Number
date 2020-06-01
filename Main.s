@@ -136,6 +136,6 @@ _start:
 	
 	
 	NUMBER: .word 0b10110011101010111010011001010100
-	TRY: .word 15 // Number of clicks you have to guess the number	
+	TRY: .word 30 // Number of clicks you have to guess the number	
 		
 	.end
