@@ -34,7 +34,7 @@ _start:
 	LDR R4, =COOL
 	STR R4, [R2]
 	POP {R4,R2}
-	B _start			
+	B LOSE			
 	
 	DISPLAY_HT:
 	PUSH {R4,R2}
